@@ -1,0 +1,139 @@
+service: serverless-todo-app
+
+plugins:
+  - serverless-iam-roles-per-function
+
+frameworkVersion: '3'
+custom:
+  todosTable: Todos-dev
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  tracing:
+    apiGateway: true
+    lambda: true
+  environment:
+    TODOS_TABLE: ${self:custom.todosTable}
+    ATTACHMENT_S3_BUCKET:
+      Ref: AttachmentsBucket
+
+functions:
+
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
+  # TODO: Configure this function
+  GetTodos:
+    handler: src/lambda/http/getTodos.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:Query
+        Resource: "*"
+    events:
+      - http:
+          method: get
+          path: todos
+          cors: true
+          authorizer: Auth
+  # TODO: Configure this function
+  CreateTodo:
+    handler: src/lambda/http/createTodo.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource: "*"
+    events:
+      - http:
+          method: post
+          path: todos
+          cors: true
+          authorizer: Auth
+
+  # TODO: Configure this function
+  UpdateTodo:
+    handler: src/lambda/http/updateTodo.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:UpdateItem
+        Resource: "*"
+    events:
+      - http:
+          method: patch
+          path: todos/{todoId}
+          cors: true
+          authorizer: Auth
+
+  # TODO: Configure this function
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - dynamodb:DeleteItem
+        Resource: "*"
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+          cors: true
+          authorizer: Auth
+
+  # TODO: Configure this function
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+        - s3:PutObject
+        Resource: "*"
+      - Effect: Allow
+        Action:
+        - dynamodb:UpdateItem
+        Resource: "*"
+    events:
+      - http:
+          method: post
+          path: todos/{todoId}/attachment
+          cors: true
+          authorizer: Auth
+
+resources:
+  Resources:
+    # TODO: Add any necessary AWS resources
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.todosTable}
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: todoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: todoId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+    
