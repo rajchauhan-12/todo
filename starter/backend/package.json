@@ -26,6 +26,10 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
-    "serverless-iam-roles-per-function": "^3.2.0"
+    "serverless-aws-documentation": "^1.1.0",
+    "serverless-iam-roles-per-function": "^3.2.0",
+    "serverless-plugin-tracing": "^2.0.0",
+    "serverless-reqvalidator-plugin": "^3.1.0",
+    "serverless-webpack": "^5.15.3"
   }
 }

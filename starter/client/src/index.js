@@ -1,32 +1,20 @@
 import { Auth0Provider } from '@auth0/auth0-react'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
 import 'semantic-ui-css/semantic.min.css'
+import App from './App'
 import './index.css'
-
-const domain = process.env.REACT_APP_AUTH0_DOMAIN
-const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 
 root.render(
-<Auth0Provider
-  domain={domain}
-  clientId={clientId}
-  redirectUri={window.location.origin}
-  audience="https://your-todo-api"
-  scope="openid profile email read:todo write:todo delete:todo"
-  cacheLocation="localstorage"
-  useRefreshTokens={true}
-  onRedirectCallback={(appState) => {
-    window.history.replaceState(
-      {},
-      document.title,
-      appState?.returnTo || window.location.pathname
-    )
-  }}
->
-  <App />
-</Auth0Provider>
+  <Auth0Provider
+    domain={'dev-yiid3pn1blque42e.us.auth0.com'}
+    clientId={'xgEGAPZRm8h3F6Mq3EPEHqeHv3G1hNtV'}
+    redirectUri={window.location.origin}
+    audience={`https://e1gvt2oie4.execute-api.us-east-1.amazonaws.com/dev`}
+    scope="read:todo write:todo delete:todo"
+  >
+    <App />
+  </Auth0Provider>
 )
